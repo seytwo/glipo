@@ -7,10 +7,10 @@ function createCanvas(basis)
   return canvas;
 }
 
+const polyhedron = [];
+
 function load()
 {
-  const polyhedron = [];
-
   const basis = new Basis();
 
   const canvasVector = createCanvas(basis);
@@ -39,6 +39,12 @@ function load()
   const eluhs = new EventListenerUpdateHalfspaceScalar(polyhedron, basis, canvasVector, renderer, elsh);
   const elus = new EventListenerUpdateScale(polyhedron, basis, canvasVector, renderer, elsh);
   const elub = new EventListenerUpdateBasis(polyhedron, basis, canvasVector, renderer, elsh);
+  const eluc = new EventListenerUpdateColor(renderer, elsh);
+
+  // elch.addHalfspace(new Vector([0.5,0.5,0]));
+  // elch.addHalfspace(new Vector([0.5,0,0.5]));
+  // elch.addHalfspace(new Vector([0,0.5,0.5]));
+  // renderer.draw();
 
   return;
 }

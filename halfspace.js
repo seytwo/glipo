@@ -1,7 +1,7 @@
 let ID = 0;
 class Halfspace
 {
-  constructor(vector, scalar=0, id=null)
+  constructor(vector, scalar=1, id=null)
   {
     if (id == null)
     {
@@ -15,6 +15,7 @@ class Halfspace
     this.vector = vector;
     this.scalar = scalar;
     this.isSelected = false;
+    this.color = "blue";
     return;
   }
 }

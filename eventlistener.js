@@ -150,6 +150,19 @@ class EventListenerCreateHalfspace extends EventListenerBase
     cursor = this.projectToBall(cursor);
     cursor = this.basis.standardToOriginal(cursor);
 
+    this.addHalfspace(cursor);
+
+    // 設定をクリア
+    this.isMousedown = false;
+
+    // 描画を更新
+    this.renderer.draw();
+
+    return;
+  }
+
+  addHalfspace(cursor)
+  {
     // 半空間を生成
     const halfspace = new Halfspace(cursor);
 
@@ -158,12 +171,6 @@ class EventListenerCreateHalfspace extends EventListenerBase
 
     // テーブルに追加
     this.renderer.table.add(halfspace);
-
-    // 設定をクリア
-    this.isMousedown = false;
-
-    // 描画を更新
-    this.renderer.draw();
 
     return;
   }
@@ -286,7 +293,7 @@ class EventListenerUpdateScale extends EventListenerBase
 
     this.elsh = elsh;
 
-    this.dscale = 0.01;
+    this.dscale = 0.1;
 
     canvas.addEventListener("mousewheel", (event)=>this.mousewheel(event));
 
@@ -422,6 +429,48 @@ class EventListenerUpdateBasis extends EventListenerBase
     this.isMousedown = false;
     this.cursorMousedown = null;
     this.basisMousedown = null;
+    return;
+  }
+}
+
+// 色更新
+class EventListenerUpdateColor extends EventListenerBase
+{
+  constructor(renderer, elsh)
+  {
+    super();
+
+    this.renderer = renderer;
+
+    this.elsh = elsh;
+
+    this.keyToColor = {
+      1: "blue",
+      2: "red",
+      3: "green",
+    };
+
+    document.body.addEventListener("keydown", (event)=>this.keydown(event));
+
+    return;
+  }
+
+  keydown(event)
+  {
+    if (this.elsh.halfspace == null)
+    {
+      return;
+    }
+
+    if (!(event.key in this.keyToColor))
+    {
+      return;
+    }
+
+    this.elsh.halfspace.color = this.keyToColor[event.key];
+
+    this.renderer.draw();
+
     return;
   }
 }

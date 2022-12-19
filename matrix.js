@@ -46,6 +46,10 @@ class Vector extends Array
     return vector;
   }
 
+  sadd(other)
+  {
+    return this.sope(other, (x, y)=>x+y);
+  }
   smul(other)
   {
     return this.sope(other, (x, y)=>x*y);

@@ -8,7 +8,7 @@ class Basis extends Matrix
       new Vector([0,0,1])
     ]);
     this.size = 300;
-    this.scale = 1;
+    this.scale = 5;
     return;
   }
 

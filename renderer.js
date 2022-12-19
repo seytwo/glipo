@@ -166,6 +166,8 @@ class RendererCanvasPolyhedron extends RendererCanvasBase
       this.drawFacetName(halfspace, facet);
     }
 
+    this.drawComplementaryPoints();
+
     return;
   }
   
@@ -177,7 +179,7 @@ class RendererCanvasPolyhedron extends RendererCanvasBase
     {
       return facet;
     }
-  
+
     // ファセットの中心を計算
     const centor = this.getCentor(facet);
 
@@ -237,23 +239,23 @@ class RendererCanvasPolyhedron extends RendererCanvasBase
       }
     }
 
-  // 重複削除
-  const points_ = []
-  for (const point of points)
-  {
-    let flag = true;
-    for (const point_ of points_)
+    // 重複削除
+    const points_ = []
+    for (const point of points)
     {
-      if (Math.round(point.distance(point_)*100000)/100000 == 0)
+      let flag = true;
+      for (const point_ of points_)
       {
-        flag = false;
+        if (Math.round(point.distance(point_)*100000)/100000 == 0)
+        {
+          flag = false;
+        }
+      }
+      if (flag)
+      {
+        points_.push(point);
       }
     }
-    if (flag)
-    {
-      points_.push(point);
-    }
-  }
   
     return points_;
   }
@@ -309,9 +311,12 @@ class RendererCanvasPolyhedron extends RendererCanvasBase
     }
     context.closePath();
   
-    context.fillStyle = "blue";
-    context.globalAlpha = 0.1;
-    context.fill();
+    if (this.isFront(halfspace))
+    {
+      context.fillStyle = halfspace.color;
+      context.globalAlpha = 0.1;
+      context.fill();
+    }
   
     context.strokeStyle = "black";
     context.globalAlpha = this.isFront(halfspace) ? 1 : 0.1;
@@ -336,6 +341,76 @@ class RendererCanvasPolyhedron extends RendererCanvasBase
   
     return;
   }
+
+  drawComplementaryPoints()
+  {
+    for (let i = 0; i < this.polyhedron.length-2; i++)
+    {
+      for (let j = i+1; j < this.polyhedron.length-1; j++)
+      {
+        for (let k = 0; k < this.polyhedron.length; k++)
+        {
+            
+          const A = new Matrix([
+            this.polyhedron[i].vector, 
+            this.polyhedron[j].vector, 
+            this.polyhedron[k].vector
+          ]);
+          const b = new Vector([
+            this.polyhedron[i].scalar, 
+            this.polyhedron[j].scalar, 
+            this.polyhedron[k].scalar
+          ]);
+
+          // 線形従属の場合はスキップ
+          if (round(A.det()) == 0)
+          {
+            continue;
+          }
+
+          // 交点を計算
+          const x = A.inv().vdot(b);
+
+          // 実行不能の場合はスキップ
+          if (!this.isFeasible(x, this.polyhedron))
+          {
+            continue;
+          }
+
+          if ((this.polyhedron[i].color != this.polyhedron[j].color) 
+              && (this.polyhedron[i].color != this.polyhedron[k].color)
+              && (this.polyhedron[j].color != this.polyhedron[k].color))
+          {
+            this.drawVectorPoint(x);
+          }
+        }
+      }
+    }
+
+    return;
+  }
+  drawVectorPoint(vector)
+  {
+    vector = this.basis.originalToCanvas(vector, true);
+
+    const context = this.canvas.getContext("2d");
+
+    context.beginPath();
+    context.arc(vector[0], vector[1], 5, 0, 2*Math.PI);
+
+    context.strokeStyle = "red";
+    context.lineWidth = 1;
+    context.globalAlpha = 1;
+    context.stroke();
+
+    context.fillStyle = "red";
+    context.globalAlpha = 1;
+    context.fill();
+
+    return;
+  }
+
+
 }
 
 class RendererTable
